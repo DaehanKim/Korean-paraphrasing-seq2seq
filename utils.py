@@ -79,8 +79,8 @@ def indexesFromSentence(dictionary, sentence):
     for k,v in KOREAN_2_SPECIAL.items(): # replace special tokens
         sentence = sentence.replace(k,v)
     tokens = [token for token in dictionary.sp(sentence)]
+    tokens = [token if token in dictionary.token2index.keys() else "<OOV>" for token in tokens]
     tokens = [SPECIAL_2_ENG[ele] if ele in SPECIAL_2_ENG else ele for ele in tokens]
-    # print(tokens)
     return [dictionary.token2index[token] for token in tokens]
 
 
