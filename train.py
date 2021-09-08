@@ -34,7 +34,7 @@ def train_epoch(train_loader, encoder, decoder, encoder_optimizer, decoder_optim
         decoder_output, decoder_attention = decoder(
             decoder_input, batch[0], encoder_hidden, encoder_output)
 
-        mask = ~torch.eq(batch[1], PAD_token*torch.ones(batch[1].size()))
+        mask = ~torch.eq(batch[1], PAD_token*torch.ones(batch[1].size()).to(DEVICE))
         loss_tmp = criterion(decoder_output.view(-1,VOCAB_SIZE), batch[1].view(-1))
         loss_tmp = loss_tmp*mask.view(-1)
         loss += loss_tmp.sum()/mask.sum()

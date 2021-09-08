@@ -45,7 +45,7 @@ class AttnDecoder(nn.Module):
         ## copy mechanism
     def get_alpha(self, e_tokens, e_states, d_states):
         # print(e_tokens.size() ,e_states.size(), d_states.size())
-        mask = ~torch.eq(e_tokens, PAD_token*torch.ones(*e_tokens.size())) # bsz x e_tokens
+        mask = ~torch.eq(e_tokens, PAD_token*torch.ones(*e_tokens.size()).to(DEVICE)) # bsz x e_tokens
         # get all possible cross concatenation of encoder and decoder sequence
         e_states = e_states.unsqueeze(1).repeat(1,MAX_SEQ_LEN,1,1)
         d_states = d_states.unsqueeze(2).repeat(1,1,MAX_SEQ_LEN,1)

@@ -29,5 +29,5 @@ SPECIAL_2_ENG = dict(zip(['\N{Arabic Poetic Verse Sign}',
 					 '\N{Arabic Sign Sindhi Ampersand}'], SPECIAL_TOKENS[:4]))
 
 SAMPLE_TEST_EVERY = 1
-#DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-DEVICE = torch.device("cpu")
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#DEVICE = torch.device("cpu")
