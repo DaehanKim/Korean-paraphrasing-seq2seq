@@ -13,6 +13,7 @@ from torch import optim
 from utils import tensorsFromPair, timeSince, showPlot
 from math import ceil
 from eval import evaluateRandomly
+from config import *
 
 teacher_forcing_ratio = 0.5
 
@@ -20,7 +21,6 @@ SOS_token = 0
 EOS_token = 1
 MAX_LENGTH = 100
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def train(input_tensors, target_tensors, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion, max_length=MAX_LENGTH):
@@ -39,14 +39,15 @@ def train(input_tensors, target_tensors, encoder, decoder, encoder_optimizer, de
         input_length = input_tensor.size(0)
         target_length = target_tensor.size(0)
 
-        encoder_outputs = torch.zeros(max_length, encoder.hidden_size).to(device)
+        encoder_outputs = torch.zeros(MAX_LENGTH, encoder.hidden_size).to(DEVICE)
 
         for ei in range(input_length):
+            if ei >= MAX_LENGTH : break
             encoder_output, encoder_hidden = encoder(
                 input_tensor[ei], encoder_hidden)
             encoder_outputs[ei] = encoder_output[0, 0]
 
-        decoder_input = torch.tensor([[SOS_token]]).to(device)
+        decoder_input = torch.tensor([[SOS_token]]).to(DEVICE)
 
         decoder_hidden = encoder_hidden
 
@@ -105,8 +106,8 @@ def trainIters(encoder, decoder, dictionary, pairs, epochs, print_every=1000, pr
             else:
                 num_data = batch_size
                 
-            input_tensors = [training_pairs[m][0].to(device) for m in range(batch_size*b, batch_size*b+num_data)]
-            target_tensors = [training_pairs[m][1].to(device) for m in range(batch_size*b, batch_size*b+num_data)]
+            input_tensors = [training_pairs[m][0].to(DEVICE) for m in range(batch_size*b, batch_size*b+num_data)]
+            target_tensors = [training_pairs[m][1].to(DEVICE) for m in range(batch_size*b, batch_size*b+num_data)]
             
             loss = train(input_tensors, target_tensors, encoder,
                          decoder, encoder_optimizer, decoder_optimizer, criterion)

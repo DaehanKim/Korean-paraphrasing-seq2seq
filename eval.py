@@ -10,12 +10,12 @@ import random
 
 from utils import tensorFromSentence
 import torch
+from config import *
 
 SOS_token = 0
 EOS_token = 1
 MAX_LENGTH = 100
     
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def evaluate(encoder, decoder, sentence, dictionary, max_length=MAX_LENGTH):
     with torch.no_grad():
@@ -23,14 +23,14 @@ def evaluate(encoder, decoder, sentence, dictionary, max_length=MAX_LENGTH):
         input_length = input_tensor.size()[0]
         encoder_hidden = encoder.initHidden()
 
-        encoder_outputs = torch.zeros(max_length, encoder.hidden_size, device=device)
+        encoder_outputs = torch.zeros(max_length, encoder.hidden_size).to(DEVICE)
 
         for ei in range(input_length):
             encoder_output, encoder_hidden = encoder(input_tensor[ei],
                                                      encoder_hidden)
             encoder_outputs[ei] += encoder_output[0, 0]
 
-        decoder_input = torch.tensor([[SOS_token]], device=device)  # SOS
+        decoder_input = torch.tensor([[SOS_token]]).to(DEVICE)  # SOS
 
         decoder_hidden = encoder_hidden
 

@@ -1,15 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Feb 25 15:38:35 2020
-
-@author: 이상헌
-"""
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+from config import *
+
 MAX_LENGTH = 100
 
 class Encoder(nn.Module):
@@ -20,18 +15,20 @@ class Encoder(nn.Module):
         self.embedtable.weight.data.copy_(embedtable)
         self.gru = nn.GRU(hidden_size, hidden_size)
         
+
     def forward(self, input, hidden):
         # embedding함수 --> lookup table에서 찾는 걸로 바꾸기
         
         embedded = self.embedtable(input) # view=reshape
+        #print(input.device(), self.embedtable.weight.device())
         output = torch.unsqueeze(embedded, 0)
-        if device.type == 'cuda':
-            output = output.cuda()
+        output = output.to(DEVICE)
+        #print(output.size(), hidden.size())
         output, hidden = self.gru(output, hidden)
         return output, hidden
     
     def initHidden(self):
-        return torch.zeros(1, 1, self.hidden_size, device=device)
+        return torch.zeros(1, 1, self.hidden_size).to(DEVICE)
         
     
 class AttnDecoder(nn.Module):
@@ -72,14 +69,13 @@ class AttnDecoder(nn.Module):
         if input.dim() == 1 : 
             input = input.unsqueeze(0)
         elif input.dim() == 0:
-            input = torch.tensor([[input]]).long().to(device)
+            input = torch.tensor([[input]]).long().to(DEVICE)
 
         embedded = self.embedtable(input)
 
         embedded = self.dropout(embedded)
 
-        if device.type == 'cuda':
-            embedded = embedded.cuda()
+        embedded = embedded.to(DEVICE)
             
         attn_weights = F.softmax(
             self.attn(torch.cat((embedded[0], hidden[0]), 1)), dim=1)
@@ -99,7 +95,7 @@ class AttnDecoder(nn.Module):
         context = self.get_context(e_tokens,encoder_outputs, alphas)
         # print(alphas)
         # print(e_tokens.size(), alphas.size())
-        copy_prob = torch.zeros(1,output_prob.size(1)).to(device).scatter_add(1, e_tokens.permute([1,0]), alphas.permute([1,0]))
+        copy_prob = torch.zeros(1,output_prob.size(1)).to(DEVICE).scatter_add(1, e_tokens.permute([1,0]), alphas.permute([1,0]))
         # print(copy_prob)
 
         # print(output.size(), encoder_outputs.size(), context.size(), embedded.size())
@@ -117,4 +113,4 @@ class AttnDecoder(nn.Module):
 
 
     def initHidden(self):
-        return torch.zeros(1, 1, self.hidden_size, device=device)
+        return torch.zeros(1, 1, self.hidden_size).to(DEVICE)
